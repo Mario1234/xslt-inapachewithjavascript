@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+	var xml;
+	var xsl;
+	
+	function procesar(){
+		// code for IE
+		if (window.ActiveXObject || xhttp.responseType == "msxml-document")
+		  {
+			  ex = xml.transformNode(xsl);
+			  document.getElementById("example").innerHTML = ex;
+		  }
+		// code for Chrome, Firefox, Opera, etc.
+		else if (document.implementation && document.implementation.createDocument)
+		  {
+			  xsltProcessor = new XSLTProcessor();
+			  xsltProcessor.importStylesheet(xsl);
+			  resultDocument = xsltProcessor.transformToFragment(xml, document);
+			  document.getElementById("example").appendChild(resultDocument);
+		  }
+	}
+	
+	function loadXMLDoc(filename, funcion1, esXML)
+	{
+		if (window.ActiveXObject)
+		  {
+			xhttp = new ActiveXObject("Msxml2.XMLHTTP");
+		  }
+		else 
+		  {
+			xhttp = new XMLHttpRequest();
+		  }
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				if(esXML) xml = xhttp.responseXML;
+				else xsl = xhttp.responseXML;
+				funcion1();
+			}
+		};
+		xhttp.open("GET", filename, true);
+		
+		//try {xhttp.responseType = "msxml-document"} catch(err) {} // Helping IE11
+		xhttp.setRequestHeader("Content-Type", "text/xml");
+		xhttp.send();		
+	}
+
+	function displayResult()
+	{
+		var funcion1 = ()=>{loadXMLDoc("./rules.xsl",procesar,false)};
+		loadXMLDoc("./student.xml",funcion1,true);
+	}
+</script>
+</head>
+<body onload="displayResult()">
+	<div id="example" />
+</body>
+</html>
